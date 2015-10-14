@@ -33,8 +33,8 @@
   </div>
   <div class="row">
     <!--ng-mouseleave="treeInputBlur()" -->
-    <div id="selectedBehaviors" ng-mouseleave="treeInputBlur()" ng-class="treeInputUnclicked" ng-click="treeInputClicked()" >
-    <ul class="ul-all" ng-show="showAll"><li class="list-all">All</li></ul>
+    <div id="selectedBehaviors"  ng-class="treeInputUnclicked" ng-click="treeInputClicked()" >
+    <ul class="ul-all " ng-show="showAll"><li class="list-all ">All</li><li class="list-all " ng-class="toggleClass">></li></ul>
     <ul  class="behavior-choices"  ng-hide="showAll">
       <li class="behavior-choices-item"  ng-repeat="behavior in addBehaviorNodes">
         <span >{{behavior.name}}</span>

@@ -13,9 +13,18 @@
     $scope.showAll=true;
     $scope.obj={};
     $scope.obj.field="ALL";
-    $scope.treeInputClicked= function(){
+    $scope.toggleClass="select-placeholder";
+    $scope.treeInputClicked = function(){
       $scope.treeInputUnclicked='mtree-input-clicked';
-      $scope.hideScroll=false;
+
+      if($scope.toggleClass === "select-placeholder"){
+        $scope.toggleClass = "select-placeholder-toggle";
+        $scope.hideScroll=false;
+      }
+      else{
+        $scope.toggleClass = "select-placeholder";
+        $scope.hideScroll=true;
+      }
     };
     $scope.treeInputBlur = function(){
       //$scope.treeInputUnclicked = 'mtree-input';
@@ -5269,13 +5278,14 @@
       });
     }
     function isDuplicate(sourceArray,element){
-      _.some(sourceArray,function(currentElement){
+
+      return _.some(sourceArray,function(currentElement){
           return element.name === currentElement.name;
       });
+      
     }
     $scope.changeCallback= function(node,isSelected,ivhTree){
       //todo: need to remove/add element(s) from addBehaviorNodes
-      console.log(node);
       if(node.name=="All"){
         $scope.addBehaviorNodes=[];
        if(node.selected){
@@ -5296,9 +5306,10 @@
           checkIfParentIsSelected(node,ivhTree);
         }
         else{
+          $scope.removeBehaviorItem(nodeObj);
           checkForSelectedSiblings(node,ivhTree);
           $scope.showAll=false;
-          $scope.removeBehaviorItem(nodeObj);
+
         }
       }
 
@@ -5308,11 +5319,10 @@
     //$scope.addBehaviorNodes.push({name:"All"});
     $scope.removeBehaviorItem= function(behavior){
       //todo: need to remove/add element(s) from addBehaviorNodes
-      console.log("behavior"+behavior);
       _.remove($scope.addBehaviorNodes, function(currentObject){
         return currentObject.name === behavior.name;
       });
-      ivhTreeviewMgr.deselect(vm.track.behaviors,behavior.name);
+      //ivhTreeviewMgr.deselect(vm.track.behaviors,behavior.name);
     }
   }
 })();
