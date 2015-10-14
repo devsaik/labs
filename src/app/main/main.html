@@ -1,0 +1,57 @@
+<div class="container">
+
+  <div>
+    <acme-navbar creationDate="main.creationDate" />
+  </div>
+
+
+
+ <!-- <div class="row">
+   <input  class="filter-tree" type="text" ng-model="bagSearch" value="All" />
+    <div
+      ivh-treeview="main.fancy.behaviors"
+      ivh-treeview-filter="bagSearch">
+    </div>
+  </div>-->
+  <div class="row">
+    <h3>Array of objects (with groupBy)</h3>
+    <ui-select multiple ng-model="multipleDemo.selectedPeopleWithGroupBy" theme="select2" ng-disabled="disabled" style="width: 800px;">
+      <ui-select-match placeholder="Select person...">{{$item.name}} &lt;{{$item.email}}&gt;</ui-select-match>
+      <ui-select-choices group-by="someGroupFn" repeat="person in people | propsFilter: {name: $select.search, age: $select.search}">
+        <div ng-bind-html="person.name | highlight: $select.search"></div>
+        <small>
+          email: {{person.email}}
+          age: <span ng-bind-html="''+person.age | highlight: $select.search"></span>
+        </small>
+      </ui-select-choices>
+    </ui-select>
+    <p>Selected: {{multipleDemo.selectedPeopleWithGroupBy}}</p>
+    <div style="height:200px"></div>
+  </div>
+  <div class="row">
+
+  </div>
+  <div class="row">
+    <!--ng-mouseleave="treeInputBlur()" -->
+    <div id="selectedBehaviors" ng-mouseleave="treeInputBlur()" ng-class="treeInputUnclicked" ng-click="treeInputClicked()" >
+    <ul class="ul-all" ng-show="showAll"><li class="list-all">All</li></ul>
+    <ul  class="behavior-choices"  ng-hide="showAll">
+      <li class="behavior-choices-item"  ng-repeat="behavior in addBehaviorNodes">
+        <span >{{behavior.name}}</span>
+        <a href="javascript:;" class="ui-select-match-close behavior-search-close" ng-click="removeBehaviorItem(behavior)" ></a></li>
+      </ul>
+    <div id="mtreeTree" class="mtreeTree" ng-hide="hideScroll" >
+      <input  type="search" class="mtreeTree-input" type="text"   placeholder="search" ng-model="behaviorSearch"  />
+      <div class="mtree">
+        <div
+          ivh-treeview="main.track.behaviors" ivh-treeview-on-cb-change="changeCallback(ivhNode,ivhIsSelected, ivhTree)"
+          ivh-treeview-filter="behaviorSearch">
+        </div>
+
+      </div>
+    </div>
+  </div>
+  </div>
+
+
+</div>
