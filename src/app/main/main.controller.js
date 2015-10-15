@@ -14,12 +14,17 @@
     $scope.obj={};
     $scope.checkboxClicked = false;
     $scope.obj.field="ALL";
+    $scope.toggleValue="open";
     $scope.toggleClass="select-placeholder";
 
     $scope.treeInputBlur = function(){
       //$scope.treeInputUnclicked = 'mtree-input';
       if(!$scope.showAll)
          $scope.hideScroll=true;
+      if(IfInInitialState()){
+        $scope.treeInputUnclicked="mtree-div";
+        $scope.showAll=true;
+      }
     };
     $timeout(function(){
       $('.mtree').slimScroll({
@@ -5155,7 +5160,7 @@
       return resultObject
 
     }
-    function arrangeParents(parent,child){
+    function arrangeParents(parent,child,leafAudienceSize){
      var childFound;
      if(! _.isArray(parent.children)){
        parent.children=[];
@@ -5163,13 +5168,13 @@
      else{
        childFound=findInArray(parent.children,child.name);
      }
+      if(parent.audienceSize)
+        parent.audienceSize=(parseInt(parent.audienceSize)+parseInt(leafAudienceSize));
+      else
+        parent.audienceSize=parseInt(leafAudienceSize);
        // array is defined
        if(!childFound){
            child.children=[];
-           if(parent.audienceSize)
-            parent.audienceSize=(parseInt(parent.audienceSize)+parseInt(child.audienceSize));
-           else
-            parent.audienceSize=0;
            parent.children.push(child);
            return parent.children[parent.children.length-1];
        }
@@ -5180,22 +5185,25 @@
             var result;
           _.forEach(value['path'],function(pathValue,index){
             var pathObj={};
-            pathObj={'name':pathValue,label:pathValue,selectedNode:true,audienceSize:value.audienceSize};
+            pathObj={'name':pathValue,label:pathValue,selectedNode:true};
             if(index==0){
               // first element in the path
-              result = arrangeParents(vm.formattedBehaviors,pathObj);
+              result = arrangeParents(vm.formattedBehaviors,pathObj,value.audienceSize);
             }
             else if((value['path'].length-1)!= index){
               // not first , not last element
-              result = arrangeParents(result,pathObj);
+              result = arrangeParents(result,pathObj,value.audienceSize);
             }
             else{
               // last element in the path
-
               if(!_.isArray(result.children)){
                 result.children=[];
               }
               value.selectedNode=true;
+              if(result.audienceSize)
+                result.audienceSize = parseInt(result.audienceSize)+parseInt(value.audienceSize);
+              else
+                result.audienceSize = parseInt(value.audienceSize);
               result.children.push(value);
 
             }
@@ -5234,7 +5242,6 @@
             }
           });
         }
-
       });
     }
     function checkIfParentIsSelected(selectedNode,ivhTree){
@@ -5266,6 +5273,12 @@
       ivhTreeviewBfs(ivhTree,function(node,parentNodes){
         if(unSelectedNode.name==node.name){
           _.forEach(parentNodes,function(eachParentNode){
+            //if parent is in list  then removeIt
+            _.remove($scope.addBehaviorNodes, function(currentObject){
+              return currentObject.name === eachParentNode.name;
+            });
+
+            //taking care of sibling selected nodes below
             _.forEach(eachParentNode.children,function(sibblingNode){
               if(sibblingNode.selected){
                 if(!isDuplicate( $scope.addBehaviorNodes,sibblingNode)){
@@ -5285,6 +5298,9 @@
       });
 
     }
+    function IfInInitialState(){
+     return $scope.addBehaviorNodes.length<=0?true:false;
+    }
     $scope.changeCallback= function(node,isSelected,ivhTree){
       //todo: need to remove/add element(s) from addBehaviorNodes
       if(node.name=="All"){
@@ -5294,11 +5310,10 @@
        }
         else{
          $scope.showAll=false;
-
        }
       }
       else{
-
+        $scope.showAll=false;
         var nodeObj={name:node.name,label:node.name,selectedNode:'selected'};
         if(node.selected){
           checkIfAnyChildrenIsInList(node,ivhTree);
@@ -5325,21 +5340,26 @@
       ivhTreeviewMgr.deselect(vm.track.behaviors,behavior.name);
     };
     $scope.treeInputClicked = function(event){
+
       if(event.target.id ==="list-all" || event.target.id==="selectedBehaviors" || event.target.id==="behavior-choices"
         || event.target.id==="list-placeholder"){
+        $scope.showAll=false;
+        ivhTreeviewMgr.deselect(vm.track.behaviors,"All");
+        _.forEach($scope.addBehaviorNodes,function(eachNode){
+          ivhTreeviewMgr.select(vm.track.behaviors,eachNode.name);
+        });
         $scope.treeInputUnclicked='mtree-input-clicked';
-        if($scope.showAll){
-          if($scope.toggleClass === "select-placeholder"){
-            $scope.toggleClass = "select-placeholder-toggle";
-            $scope.hideScroll=false;
-          }
-          else{
-            $scope.toggleClass = "select-placeholder";
-            $scope.hideScroll=true;
-          }
+        if($scope.toggleValue==="open"){
+           $scope.hideScroll  = false;
+           $scope.toggleValue = "close";
         }
         else{
-          $scope.hideScroll=false;
+          if(IfInInitialState()){
+            $scope.treeInputUnclicked="mtree-div";
+            $scope.showAll=true;
+          }
+          $scope.hideScroll=true;
+          $scope.toggleValue = "open";
         }
       }
     };
