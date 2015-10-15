@@ -5236,7 +5236,7 @@
           // todo:optimize little bit here by hitting only children but not start at siblings
           _.forEach(parentNodes,function(currentNode){
             if(currentNode.name==selectedNode.name){
-              _.remove($scope.addBehaviorNodes, function(currentBehavior){
+              _.remove($scope.behaviorDataStore, function(currentBehavior){
                 return currentBehavior.name === node.name;
               });
             }
@@ -5247,21 +5247,19 @@
     function checkIfParentIsSelected(selectedNode,ivhTree){
       ivhTreeviewBfs(ivhTree,function(node,parentNodes){
         if(selectedNode.name==node.name){
-          console.log("Node act"+node.name);
-          console.log("Parent Node"+parentNodes[0].name);
           if(parentNodes[0].selected ){
             if(parentNodes[0].name!="All"){
               _.forEach(parentNodes[0].children,function(childNode){
-                _.remove($scope.addBehaviorNodes, function(currentObject){
+                _.remove($scope.behaviorDataStore, function(currentObject){
                   return currentObject.name === childNode.name;
                 });
               });
-              $scope.addBehaviorNodes.push(parentNodes[0]);
+              $scope.behaviorDataStore.push(parentNodes[0]);
               checkIfParentIsSelected(parentNodes[0],ivhTree);
             }
             else{
               $scope.showAll=true;
-              $scope.addBehaviorNodes=[];
+              $scope.behaviorDataStore=[];
             }
 
           }
@@ -5274,16 +5272,16 @@
         if(unSelectedNode.name==node.name){
           _.forEach(parentNodes,function(eachParentNode){
             //if parent is in list  then removeIt
-            _.remove($scope.addBehaviorNodes, function(currentObject){
+            _.remove($scope.behaviorDataStore, function(currentObject){
               return currentObject.name === eachParentNode.name;
             });
 
             //taking care of sibling selected nodes below
             _.forEach(eachParentNode.children,function(sibblingNode){
               if(sibblingNode.selected){
-                if(!isDuplicate( $scope.addBehaviorNodes,sibblingNode)){
+                if(!isDuplicate( $scope.behaviorDataStore,sibblingNode)){
                   nodeObj={name:sibblingNode.name,label:sibblingNode.name,selectedNode:'selected'};
-                  $scope.addBehaviorNodes.push(sibblingNode);
+                  $scope.behaviorDataStore.push(sibblingNode);
                 }
               }
             });
@@ -5299,12 +5297,12 @@
 
     }
     function IfInInitialState(){
-     return $scope.addBehaviorNodes.length<=0?true:false;
+     return $scope.behaviorDataStore.length<=0?true:false;
     }
     $scope.changeCallback= function(node,isSelected,ivhTree){
       //todo: need to remove/add element(s) from addBehaviorNodes
       if(node.name=="All"){
-        $scope.addBehaviorNodes=[];
+        $scope.behaviorDataStore=[];
        if(node.selected){
          $scope.showAll=true;
        }
@@ -5317,8 +5315,8 @@
         var nodeObj={name:node.name,label:node.name,selectedNode:'selected'};
         if(node.selected){
           checkIfAnyChildrenIsInList(node,ivhTree);
-          if(!isDuplicate( $scope.addBehaviorNodes,nodeObj))
-            $scope.addBehaviorNodes.push(nodeObj);
+          if(!isDuplicate( $scope.behaviorDataStore,nodeObj))
+            $scope.behaviorDataStore.push(nodeObj);
           checkIfParentIsSelected(node,ivhTree);
         }
         else{
@@ -5330,11 +5328,10 @@
       }
     };
 
-    $scope.addBehaviorNodes=[];
-    //$scope.addBehaviorNodes.push({name:"All"});
+    $scope.behaviorDataStore=[];
     $scope.removeBehaviorItem= function(behavior){
       //todo: need to remove/add element(s) from addBehaviorNodes
-      _.remove($scope.addBehaviorNodes, function(currentObject){
+      _.remove($scope.behaviorDataStore, function(currentObject){
         return currentObject.name === behavior.name;
       });
       ivhTreeviewMgr.deselect(vm.track.behaviors,behavior.name);
@@ -5345,7 +5342,7 @@
         || event.target.id==="list-placeholder"){
         $scope.showAll=false;
         ivhTreeviewMgr.deselect(vm.track.behaviors,"All");
-        _.forEach($scope.addBehaviorNodes,function(eachNode){
+        _.forEach($scope.behaviorDataStore,function(eachNode){
           ivhTreeviewMgr.select(vm.track.behaviors,eachNode.name);
         });
         $scope.treeInputUnclicked='mtree-input-clicked';
