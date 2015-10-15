@@ -15,24 +15,7 @@
     $scope.checkboxClicked = false;
     $scope.obj.field="ALL";
     $scope.toggleClass="select-placeholder";
-    $scope.treeInputClicked = function(){
 
-      $scope.treeInputUnclicked='mtree-input-clicked';
-      if($scope.showAll){
-        if($scope.toggleClass === "select-placeholder"){
-          $scope.toggleClass = "select-placeholder-toggle";
-          $scope.hideScroll=false;
-        }
-        else{
-          $scope.toggleClass = "select-placeholder";
-          $scope.hideScroll=true;
-        }
-      }
-      else{
-        $scope.hideScroll=false;
-      }
-
-    };
     $scope.treeInputBlur = function(){
       //$scope.treeInputUnclicked = 'mtree-input';
       if(!$scope.showAll)
@@ -5173,7 +5156,7 @@
 
     }
     function arrangeParents(parent,child){
-      var childFound;
+     var childFound;
      if(! _.isArray(parent.children)){
        parent.children=[];
      }
@@ -5183,6 +5166,10 @@
        // array is defined
        if(!childFound){
            child.children=[];
+           if(parent.audienceSize)
+            parent.audienceSize=(parseInt(parent.audienceSize)+parseInt(child.audienceSize));
+           else
+            parent.audienceSize=0;
            parent.children.push(child);
            return parent.children[parent.children.length-1];
        }
@@ -5193,14 +5180,18 @@
             var result;
           _.forEach(value['path'],function(pathValue,index){
             var pathObj={};
-            pathObj={'name':pathValue,label:pathValue,selected:true};
+            pathObj={'name':pathValue,label:pathValue,selectedNode:true,audienceSize:value.audienceSize};
             if(index==0){
+              // first element in the path
               result = arrangeParents(vm.formattedBehaviors,pathObj);
             }
             else if((value['path'].length-1)!= index){
+              // not first , not last element
               result = arrangeParents(result,pathObj);
             }
             else{
+              // last element in the path
+
               if(!_.isArray(result.children)){
                 result.children=[];
               }
@@ -5274,13 +5265,15 @@
       var nodeObj;
       ivhTreeviewBfs(ivhTree,function(node,parentNodes){
         if(unSelectedNode.name==node.name){
-          _.forEach(parentNodes[0].children,function(sibblingNode){
+          _.forEach(parentNodes,function(eachParentNode){
+            _.forEach(eachParentNode.children,function(sibblingNode){
               if(sibblingNode.selected){
                 if(!isDuplicate( $scope.addBehaviorNodes,sibblingNode)){
-                   nodeObj={name:sibblingNode.name,label:sibblingNode.name,selectedNode:'selected'};
-                   $scope.addBehaviorNodes.push(sibblingNode);
+                  nodeObj={name:sibblingNode.name,label:sibblingNode.name,selectedNode:'selected'};
+                  $scope.addBehaviorNodes.push(sibblingNode);
                 }
               }
+            });
           });
         }
       });
@@ -5330,6 +5323,25 @@
         return currentObject.name === behavior.name;
       });
       ivhTreeviewMgr.deselect(vm.track.behaviors,behavior.name);
-    }
+    };
+    $scope.treeInputClicked = function(event){
+      if(event.target.id ==="list-all" || event.target.id==="selectedBehaviors" || event.target.id==="behavior-choices"
+        || event.target.id==="list-placeholder"){
+        $scope.treeInputUnclicked='mtree-input-clicked';
+        if($scope.showAll){
+          if($scope.toggleClass === "select-placeholder"){
+            $scope.toggleClass = "select-placeholder-toggle";
+            $scope.hideScroll=false;
+          }
+          else{
+            $scope.toggleClass = "select-placeholder";
+            $scope.hideScroll=true;
+          }
+        }
+        else{
+          $scope.hideScroll=false;
+        }
+      }
+    };
   }
 })();
