@@ -12,23 +12,31 @@
     $scope.hideScroll=true;
     $scope.showAll=true;
     $scope.obj={};
+    $scope.checkboxClicked = false;
     $scope.obj.field="ALL";
     $scope.toggleClass="select-placeholder";
     $scope.treeInputClicked = function(){
-      $scope.treeInputUnclicked='mtree-input-clicked';
 
-      if($scope.toggleClass === "select-placeholder"){
-        $scope.toggleClass = "select-placeholder-toggle";
-        $scope.hideScroll=false;
+      $scope.treeInputUnclicked='mtree-input-clicked';
+      if($scope.showAll){
+        if($scope.toggleClass === "select-placeholder"){
+          $scope.toggleClass = "select-placeholder-toggle";
+          $scope.hideScroll=false;
+        }
+        else{
+          $scope.toggleClass = "select-placeholder";
+          $scope.hideScroll=true;
+        }
       }
       else{
-        $scope.toggleClass = "select-placeholder";
-        $scope.hideScroll=true;
+        $scope.hideScroll=false;
       }
+
     };
     $scope.treeInputBlur = function(){
       //$scope.treeInputUnclicked = 'mtree-input';
-      $scope.hideScroll=true;
+      if(!$scope.showAll)
+         $scope.hideScroll=true;
     };
     $timeout(function(){
       $('.mtree').slimScroll({
@@ -5282,7 +5290,7 @@
       return _.some(sourceArray,function(currentElement){
           return element.name === currentElement.name;
       });
-      
+
     }
     $scope.changeCallback= function(node,isSelected,ivhTree){
       //todo: need to remove/add element(s) from addBehaviorNodes
@@ -5312,7 +5320,6 @@
 
         }
       }
-
     };
 
     $scope.addBehaviorNodes=[];
@@ -5322,7 +5329,7 @@
       _.remove($scope.addBehaviorNodes, function(currentObject){
         return currentObject.name === behavior.name;
       });
-      //ivhTreeviewMgr.deselect(vm.track.behaviors,behavior.name);
+      ivhTreeviewMgr.deselect(vm.track.behaviors,behavior.name);
     }
   }
 })();
