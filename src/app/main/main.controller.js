@@ -19,12 +19,12 @@
 
     $scope.treeInputBlur = function(){
       //$scope.treeInputUnclicked = 'mtree-input';
-      if(!$scope.showAll)
+      /*if(!$scope.showAll)
          $scope.hideScroll=true;
       if(IfInInitialState()){
         $scope.treeInputUnclicked="mtree-div";
         $scope.showAll=true;
-      }
+      }*/
     };
     $timeout(function(){
       $('.mtree').slimScroll({
@@ -4927,23 +4927,6 @@
           "All Mobile Devices by Brand",
           "BlackBerry",
           "Curve 9300"
-        ],
-        "realTimeCluster": null,
-        "countryAccess": null,
-        "source": null,
-        "partner": null,
-        "country": null
-      },
-      {
-        "id": null,
-        "internalId": "6013516370183",
-        "name": "Commuters",
-        "description": "People likely to commute from home to their workplace on weekdays.",
-        "audienceSize": "49486817",
-        "type": "behaviors",
-        "path": [
-          "Travel",
-          "Commuters"
         ],
         "realTimeCluster": null,
         "countryAccess": null,

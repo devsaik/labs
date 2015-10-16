@@ -15,7 +15,7 @@
       childrenAttribute: 'children',
       twistieExpandedTpl: '<span class="glyphicon glyphicon-menu-down"></span>',
       twistieCollapsedTpl: '<span class="glyphicon glyphicon-menu-right"></span>',
-      twistieLeafTpl: '&nbsp;',
+      twistieLeafTpl: '',
       defaultSelectedState: true,
       selectedAttribute: 'selected',
       useCheckboxes: true,
