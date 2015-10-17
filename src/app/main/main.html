@@ -13,24 +13,9 @@
       ivh-treeview-filter="bagSearch">
     </div>
   </div>-->
-  <div class="row">
-    <h3>Array of objects (with groupBy)</h3>
-    <ui-select multiple ng-model="multipleDemo.selectedPeopleWithGroupBy" theme="select2" ng-disabled="disabled" style="width: 800px;">
-      <ui-select-match placeholder="Select person...">{{$item.name}} &lt;{{$item.email}}&gt;</ui-select-match>
-      <ui-select-choices group-by="someGroupFn" repeat="person in people | propsFilter: {name: $select.search, age: $select.search}">
-        <div ng-bind-html="person.name | highlight: $select.search"></div>
-        <small>
-          email: {{person.email}}
-          age: <span ng-bind-html="''+person.age | highlight: $select.search"></span>
-        </small>
-      </ui-select-choices>
-    </ui-select>
-    <p>Selected: {{multipleDemo.selectedPeopleWithGroupBy}}</p>
-    <div style="height:200px"></div>
-  </div>
+
 
   <div class="row">
-    <!--ng-mouseleave="treeInputBlur()" -->
     <div id="selectedBehaviors" ng-mouseleave="treeInputBlur()" ng-class="treeInputUnclicked" ng-click="treeInputClicked($event)" >
     <ul class="ul-all " ng-show="showAll"><li id="list-all" class="list-all ">All</li><li id="list-placeholder" class="list-all " ng-class="toggleClass">></li></ul>
     <ul  id="behavior-choices" class="behavior-choices"  ng-hide="showAll">
@@ -41,7 +26,7 @@
       </li>
     </ul>
     <div id="mtreeTree" class="mtreeTree" ng-hide="hideScroll" >
-      <input   id="mtreeTree-input" class="mtreeTree-input" type="text"   placeholder="search" ng-model="behaviorSearch"  />
+      <input   id="mtreeTree-input" class="mtreeTree-input" type="text" ng-keyup="keyUpSearch($event)"  placeholder="search" ng-model="behaviorSearch"  />
       <div class="mtree">
         <div ivh-treeview="main.track.behaviors" ivh-treeview-on-cb-change="changeCallback(ivhNode,ivhIsSelected, ivhTree)"
           ivh-treeview-filter="behaviorSearch" class="custom-border-down">

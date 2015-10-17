@@ -6,65 +6,17 @@
     .controller('MainController', MainController);
 
   /** @ngInject */
-  function MainController($timeout, webDevTec, toastr,$scope,ivhTreeviewMgr,ivhTreeviewBfs) {
+  function MainController($timeout,$scope,ivhTreeviewMgr,ivhTreeviewBfs,TreeServiceUtils) {
     var vm = this;
     $scope.treeInputUnclicked = 'mtree-div';
     $scope.hideScroll=true;
     $scope.showAll=true;
-    $scope.obj={};
+    $scope.behaviorDataStore=[];
     $scope.checkboxClicked = false;
-    $scope.obj.field="ALL";
     $scope.toggleValue="open";
     $scope.toggleClass="select-placeholder";
-
-    $scope.treeInputBlur = function(){
-      //$scope.treeInputUnclicked = 'mtree-input';
-      /*if(!$scope.showAll)
-         $scope.hideScroll=true;
-      if(IfInInitialState()){
-        $scope.treeInputUnclicked="mtree-div";
-        $scope.showAll=true;
-      }*/
-    };
-    $timeout(function(){
-      $('.mtree').slimScroll({
-        height: '200px',
-        railVisible: true,
-        alwaysVisible: false
-      });
-    });
-    $scope.multipleDemo = {};
-    $scope.people = [
-      { name: 'Adam',      email: 'adam@email.com',      age: 12, country: 'United States' },
-      { name: 'Amalie',    email: 'amalie@email.com',    age: 12, country: 'Argentina' },
-      { name: 'Estefanía', email: 'estefania@email.com', age: 21, country: 'Argentina' },
-      { name: 'Adrian',    email: 'adrian@email.com',    age: 21, country: 'Ecuador' },
-      { name: 'Wladimir',  email: 'wladimir@email.com',  age: 30, country: 'Ecuador' },
-      { name: 'Samantha',  email: 'samantha@email.com',  age: 30, country: 'United States' },
-      { name: 'Nicole',    email: 'nicole@email.com',    age: 43, country: 'Colombia' },
-      { name: 'Natasha',   email: 'natasha@email.com',   age: 54, country: 'Ecuador' },
-      { name: 'Michael',   email: 'michael@email.com',   age: 15, country: 'Colombia' },
-      { name: 'Nicolás',   email: 'nicolas@email.com',    age: 43, country: 'Colombia' }
-    ];
-    $scope.someGroupFn = function (item){
-
-      if (item.name[0] >= 'A' && item.name[0] <= 'M')
-        return 'ALL';
-
-      if (item.name[0] >= 'N' && item.name[0] <= 'Z')
-        return 'From N - Z';
-
-    };
-    $scope.doNothing = function(event){
-      event.preventDefault();
-      console.log($item+$model);
-    };
-    $scope.multipleDemo.selectedPeopleWithGroupBy = [$scope.people[8], $scope.people[6]];
-
-
-    vm.unfancy={};
-
-    vm.unfancy.bag=[
+    vm.facebook={};
+    vm.facebook.dataStore=[
       {
         "id": null,
         "internalId": "6002714895372",
@@ -5133,84 +5085,29 @@
         "country": null
       }
     ];
-
-    vm.formattedBehaviors={};
-    vm.formattedBehaviors['name'] = 'All';
-    function findInArray(givenArray,name){
-     var resultObject =  _.find(givenArray, function(obj) {
-       return obj.name == name;
-     });
-      return resultObject
-
-    }
-    function arrangeParents(parent,child,leafAudienceSize){
-     var childFound;
-     if(! _.isArray(parent.children)){
-       parent.children=[];
-     }
-     else{
-       childFound=findInArray(parent.children,child.name);
-     }
-      if(parent.audienceSize)
-        parent.audienceSize=(parseInt(parent.audienceSize)+parseInt(leafAudienceSize));
-      else
-        parent.audienceSize=parseInt(leafAudienceSize);
-       // array is defined
-       if(!childFound){
-           child.children=[];
-           parent.children.push(child);
-           return parent.children[parent.children.length-1];
-       }
-       return childFound;
-    }
-    _.forEach(vm.unfancy.bag,function(value,key){
-        if(_.isArray(value['path'] ) && value['path'].length>1){
-            var result;
-          _.forEach(value['path'],function(pathValue,index){
-            var pathObj={};
-            pathObj={'name':pathValue,label:pathValue,selectedNode:true};
-            if(index==0){
-              // first element in the path
-              result = arrangeParents(vm.formattedBehaviors,pathObj,value.audienceSize);
-            }
-            else if((value['path'].length-1)!= index){
-              // not first , not last element
-              result = arrangeParents(result,pathObj,value.audienceSize);
-            }
-            else{
-              // last element in the path
-              if(!_.isArray(result.children)){
-                result.children=[];
-              }
-              value.selectedNode=true;
-              if(result.audienceSize)
-                result.audienceSize = parseInt(result.audienceSize)+parseInt(value.audienceSize);
-              else
-                result.audienceSize = parseInt(value.audienceSize);
-              result.children.push(value);
-
-            }
-
-          });
-        }
+    $scope.treeInputBlur = function(){
+      //$scope.treeInputUnclicked = 'mtree-input';
+      if(!$scope.showAll)
+         $scope.hideScroll=true;
+      if(TreeServiceUtils.ifInInitialState($scope.behaviorDataStore)){
+        $scope.treeInputUnclicked="mtree-div";
+        $scope.showAll=true;
+      }
+    };
+    $timeout(function(){
+      $('.mtree').slimScroll({
+        height: '200px',
+        railVisible: true,
+        alwaysVisible: false
+      });
     });
-
+    TreeServiceUtils.buildJSONTree(vm.facebook.dataStore);
     vm.track={};
     vm.track.behaviors=[];
-    vm.track.behaviors.push(vm.formattedBehaviors);
-
-    $scope.someGroupFn = function (item){
-
-      if (item.name[0] >= 'A' && item.name[0] <= 'M')
-        return 'From A - M';
-
-      if (item.name[0] >= 'N' && item.name[0] <= 'Z')
-        return 'From N - Z';
-
-    };
+   // vm.track.behaviors.push(vm.formattedBehaviors);
+    vm.track.behaviors.push(TreeServiceUtils.getTreeFormattedJSON());
     function checkIfAnyChildrenIsInList(selectedNode,ivhTree){
       var startChecking =false;
-
       ivhTreeviewBfs(ivhTree,function(node,parentNodes) {
         if(selectedNode.name==node.name){
           startChecking=true;
@@ -5219,9 +5116,7 @@
           // todo:optimize little bit here by hitting only children but not start at siblings
           _.forEach(parentNodes,function(currentNode){
             if(currentNode.name==selectedNode.name){
-              _.remove($scope.behaviorDataStore, function(currentBehavior){
-                return currentBehavior.name === node.name;
-              });
+              $scope.behaviorDataStore = TreeServiceUtils.removeFormDataStore($scope.behaviorDataStore,node);
             }
           });
         }
@@ -5233,9 +5128,7 @@
           if(parentNodes[0].selected ){
             if(parentNodes[0].name!="All"){
               _.forEach(parentNodes[0].children,function(childNode){
-                _.remove($scope.behaviorDataStore, function(currentObject){
-                  return currentObject.name === childNode.name;
-                });
+                $scope.behaviorDataStore = TreeServiceUtils.removeFormDataStore($scope.behaviorDataStore,childNode);
               });
               $scope.behaviorDataStore.push(parentNodes[0]);
               checkIfParentIsSelected(parentNodes[0],ivhTree);
@@ -5254,15 +5147,13 @@
       ivhTreeviewBfs(ivhTree,function(node,parentNodes){
         if(unSelectedNode.name==node.name){
           _.forEach(parentNodes,function(eachParentNode){
-            //if parent is in list  then removeIt
-            _.remove($scope.behaviorDataStore, function(currentObject){
-              return currentObject.name === eachParentNode.name;
-            });
+            //if parent is in dataStore  then removeIt
+            $scope.behaviorDataStore = TreeServiceUtils.removeFormDataStore($scope.behaviorDataStore,eachParentNode);
 
             //taking care of sibling selected nodes below
             _.forEach(eachParentNode.children,function(sibblingNode){
               if(sibblingNode.selected){
-                if(!isDuplicate( $scope.behaviorDataStore,sibblingNode)){
+                if(!(TreeServiceUtils.isDuplicate( $scope.behaviorDataStore,sibblingNode))){
                   nodeObj={name:sibblingNode.name,label:sibblingNode.name,selectedNode:'selected'};
                   $scope.behaviorDataStore.push(sibblingNode);
                 }
@@ -5271,16 +5162,6 @@
           });
         }
       });
-    }
-    function isDuplicate(sourceArray,element){
-
-      return _.some(sourceArray,function(currentElement){
-          return element.name === currentElement.name;
-      });
-
-    }
-    function IfInInitialState(){
-     return $scope.behaviorDataStore.length<=0?true:false;
     }
     $scope.changeCallback= function(node,isSelected,ivhTree){
       //todo: need to remove/add element(s) from addBehaviorNodes
@@ -5298,7 +5179,7 @@
         var nodeObj={name:node.name,label:node.name,selectedNode:'selected'};
         if(node.selected){
           checkIfAnyChildrenIsInList(node,ivhTree);
-          if(!isDuplicate( $scope.behaviorDataStore,nodeObj))
+          if(!(TreeServiceUtils.isDuplicate( $scope.behaviorDataStore,nodeObj)))
             $scope.behaviorDataStore.push(nodeObj);
           checkIfParentIsSelected(node,ivhTree);
         }
@@ -5306,18 +5187,21 @@
           $scope.removeBehaviorItem(nodeObj);
           checkForSelectedSiblings(node,ivhTree);
           $scope.showAll=false;
-
         }
       }
     };
-
-    $scope.behaviorDataStore=[];
     $scope.removeBehaviorItem= function(behavior){
       //todo: need to remove/add element(s) from addBehaviorNodes
-      _.remove($scope.behaviorDataStore, function(currentObject){
-        return currentObject.name === behavior.name;
-      });
+      $scope.behaviorDataStore = TreeServiceUtils.removeFormDataStore($scope.behaviorDataStore,behavior);
       ivhTreeviewMgr.deselect(vm.track.behaviors,behavior.name);
+    };
+    $scope.keyUpSearch = function(){
+      var text=$scope.behaviorSearch;
+       ivhTreeviewMgr.expandRecursive(vm.track.behaviors, vm.track.behaviors);
+      if(text.length<=0){
+        ivhTreeviewMgr.collapseRecursive(vm.track.behaviors, vm.track.behaviors);
+        ivhTreeviewMgr.expandTo(vm.track.behaviors,vm.track.behaviors[0].children[vm.track.behaviors[0].children.length-1]);
+      }
     };
     $scope.treeInputClicked = function(event){
 
@@ -5334,7 +5218,7 @@
            $scope.toggleValue = "close";
         }
         else{
-          if(IfInInitialState()){
+          if(TreeServiceUtils.ifInInitialState($scope.behaviorDataStore)){
             $scope.treeInputUnclicked="mtree-div";
             $scope.showAll=true;
           }
