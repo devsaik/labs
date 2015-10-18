@@ -1,13 +1,12 @@
+/**
+ * Created by rca733 on 10/16/15.
+ */
 (function() {
   'use strict';
-
   angular
     .module('labs')
-    .controller('MainController', MainController);
-
-  /** @ngInject */
-  function MainController($timeout,$scope,ivhTreeviewMgr,ivhTreeviewBfs,TreeServiceUtils) {
-    var vm = this;
+    .controller('TreeSelectController', TreeSelectController);
+  function TreeSelectController($timeout,$scope,ivhTreeviewMgr,ivhTreeviewBfs,TreeServiceUtils){
     $scope.treeInputUnclicked = 'mtree-div';
     $scope.hideScroll=true;
     $scope.showAll=true;
@@ -15,8 +14,8 @@
     $scope.checkboxClicked = false;
     $scope.toggleValue="open";
     $scope.toggleClass="select-placeholder";
-    vm.facebook={};
-    vm.facebook.dataStore=[
+    $scope.facebook={};
+    $scope.facebook.dataStore=[
       {
         "id": null,
         "internalId": "6002714895372",
@@ -5088,7 +5087,7 @@
     $scope.treeInputBlur = function(){
       //$scope.treeInputUnclicked = 'mtree-input';
       if(!$scope.showAll)
-         $scope.hideScroll=true;
+        $scope.hideScroll=true;
       if(TreeServiceUtils.ifInInitialState($scope.behaviorDataStore)){
         $scope.treeInputUnclicked="mtree-div";
         $scope.showAll=true;
@@ -5101,11 +5100,11 @@
         alwaysVisible: false
       });
     });
-    TreeServiceUtils.buildJSONTree(vm.facebook.dataStore);
-    vm.track={};
-    vm.track.behaviors=[];
-   // vm.track.behaviors.push(vm.formattedBehaviors);
-    vm.track.behaviors.push(TreeServiceUtils.getTreeFormattedJSON());
+    TreeServiceUtils.buildJSONTree($scope.facebook.dataStore);
+    $scope.track={};
+    $scope.track.behaviors=[];
+    // vm.track.behaviors.push(vm.formattedBehaviors);
+    $scope.track.behaviors.push(TreeServiceUtils.getTreeFormattedJSON());
     function checkIfAnyChildrenIsInList(selectedNode,ivhTree){
       var startChecking =false;
       ivhTreeviewBfs(ivhTree,function(node,parentNodes) {
@@ -5167,12 +5166,12 @@
       //todo: need to remove/add element(s) from addBehaviorNodes
       if(node.name=="All"){
         $scope.behaviorDataStore=[];
-       if(node.selected){
-         $scope.showAll=true;
-       }
+        if(node.selected){
+          $scope.showAll=true;
+        }
         else{
-         $scope.showAll=false;
-       }
+          $scope.showAll=false;
+        }
       }
       else{
         $scope.showAll=false;
@@ -5193,14 +5192,14 @@
     $scope.removeBehaviorItem= function(behavior){
       //todo: need to remove/add element(s) from addBehaviorNodes
       $scope.behaviorDataStore = TreeServiceUtils.removeFormDataStore($scope.behaviorDataStore,behavior);
-      ivhTreeviewMgr.deselect(vm.track.behaviors,behavior.name);
+      ivhTreeviewMgr.deselect($scope.track.behaviors,behavior.name);
     };
     $scope.keyUpSearch = function(){
       var text=$scope.behaviorSearch;
-       ivhTreeviewMgr.expandRecursive(vm.track.behaviors, vm.track.behaviors);
+      ivhTreeviewMgr.expandRecursive($scope.track.behaviors, $scope.track.behaviors);
       if(text.length<=0){
-        ivhTreeviewMgr.collapseRecursive(vm.track.behaviors, vm.track.behaviors);
-        ivhTreeviewMgr.expandTo(vm.track.behaviors,vm.track.behaviors[0].children[vm.track.behaviors[0].children.length-1]);
+        ivhTreeviewMgr.collapseRecursive($scope.track.behaviors, $scope.track.behaviors);
+        ivhTreeviewMgr.expandTo($scope.track.behaviors,$scope.track.behaviors[0].children[$scope.track.behaviors[0].children.length-1]);
       }
     };
     $scope.treeInputClicked = function(event){
@@ -5208,14 +5207,14 @@
       if(event.target.id ==="list-all" || event.target.id==="selectedBehaviors" || event.target.id==="behavior-choices"
         || event.target.id==="list-placeholder"){
         $scope.showAll=false;
-        ivhTreeviewMgr.deselect(vm.track.behaviors,"All");
+        ivhTreeviewMgr.deselect($scope.track.behaviors,"All");
         _.forEach($scope.behaviorDataStore,function(eachNode){
-          ivhTreeviewMgr.select(vm.track.behaviors,eachNode.name);
+          ivhTreeviewMgr.select($scope.track.behaviors,eachNode.name);
         });
         $scope.treeInputUnclicked='mtree-input-clicked';
         if($scope.toggleValue==="open"){
-           $scope.hideScroll  = false;
-           $scope.toggleValue = "close";
+          $scope.hideScroll  = false;
+          $scope.toggleValue = "close";
         }
         else{
           if(TreeServiceUtils.ifInInitialState($scope.behaviorDataStore)){
@@ -5227,5 +5226,7 @@
         }
       }
     };
+
   }
-})();
+
+}());
