@@ -67,7 +67,6 @@
               $scope.showAll=true;
               $scope.treeDataStore=[];
             }
-
           }
         }
       });
