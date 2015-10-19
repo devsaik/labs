@@ -12,6 +12,9 @@
       restrict: 'E',
       replace: true,
       templateUrl:'app/main/directive/treeSelect.partial.html',
+      scope: {
+        preFormattedData: '='
+      },
       controller: 'TreeSelectController'
     }
   }

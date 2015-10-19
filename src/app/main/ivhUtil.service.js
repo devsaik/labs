@@ -81,9 +81,9 @@
           return element.name === currentElement.name;
         });
       },
-      removeFormDataStore: function(dataStore,behavior){
-        _.remove(dataStore, function(currentBehavior){
-          return currentBehavior.name === behavior.name;
+      removeFromDataStore: function(dataStore,node){
+        _.remove(dataStore, function(currentNode){
+          return currentNode.name === node.name;
         });
         return dataStore;
       },
