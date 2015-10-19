@@ -1,16 +1,18 @@
-<div id="selectedItems" ng-mouseleave="treeInputBlur()" ng-class="treeInputUnclicked" ng-click="treeInputClicked($event)" >
-  <ul class="ul-all " ng-show="showAll"><li id="list-all" class="list-all ">All</li><li id="list-placeholder" class="list-all " ng-class="toggleClass">></li></ul>
-  <ul  id="item-choices" class="item-choices"  ng-hide="showAll">
-    <li class="item-choices-eachItem"  ng-repeat="node in treeDataStore">
-      <span >{{node.name}}</span>
-      <span class="mtree-tag-close" ng-click="removeNodeItem(node)">X</span>
-    </li>
-  </ul>
-  <div id="mtreeTree" class="mtreeTree" ng-hide="hideScroll" >
-    <input   id="mtreeTree-input" class="mtreeTree-input" type="text" ng-keyup="keyUpSearch($event)"  placeholder="search" ng-model="nodeSearch"  />
-    <div class="mtree">
-      <div ivh-treeview="postFormatted.dataStore" ivh-treeview-on-cb-change="changeCallback(ivhNode,ivhIsSelected, ivhTree)"
-           ivh-treeview-filter="nodeSearch" class="custom-border-down">
+<div class="tree-select-wrapper">
+  <div id="selectedItems" ng-mouseleave="treeInputBlur()" ng-class="treeInputUnclicked" ng-click="treeInputClicked($event)" >
+    <ul class="ul-all " ng-show="showAll"><li id="list-all" class="list-all ">All</li><li id="list-placeholder" class="list-all " ng-class="toggleClass">></li></ul>
+    <ul  id="item-choices" class="item-choices"  ng-hide="showAll">
+      <li class="item-choices-eachItem"  ng-repeat="node in treeDataStore">
+        <span >{{node.name}}</span>
+        <span class="mtree-tag-close" ng-click="removeNodeItem(node)">X</span>
+      </li>
+    </ul>
+    <div id="mtreeTree" class="mtreeTree" ng-hide="hideScroll" >
+      <input   id="mtreeTree-input" class="mtreeTree-input" type="text" ng-keyup="keyUpSearch($event)"  placeholder="search" ng-model="nodeSearch"  />
+      <div class="mtree">
+        <div ivh-treeview="postFormatted.dataStore" ivh-treeview-on-cb-change="changeCallback(ivhNode,ivhIsSelected, ivhTree)"
+             ivh-treeview-filter="nodeSearch" class="custom-border-down">
+        </div>
       </div>
     </div>
   </div>

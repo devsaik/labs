@@ -47,7 +47,8 @@
         ivhTreeviewBfs(ivhTree,function(node,parentNodes){
           if(typeof node.children == "undefined"){
             _.forEach(parentNodes,function(parentNode){
-              if(findIfNodeExists(treeDataStore,parentNode.name)){
+              if(findIfNodeExists(treeDataStore,parentNode.name)||findIfNodeExists(treeDataStore,node.name)){
+                //todo: take care of duplicates here
                 allLeafNodeDataStore.push(node);
               }
             });
@@ -57,9 +58,29 @@
       getAllLeafNodesDataStore: function(){
         return allLeafNodeDataStore;
       },
-      removeLeafFromLeafNodesDataStore: function(node){
-        //todo:remove by traversing  this will not help
-        returnObj.removeFromDataStore(allLeafNodeDataStore,node);
+      removeLeafFromLeafNodesDataStore: function(ivhTree,removedNode){
+       if(findIfNodeExists(allLeafNodeDataStore,removedNode.name)){
+         // removedNode is a leafnode
+         allLeafNodeDataStore=returnObj.removeFromDataStore(allLeafNodeDataStore,removedNode);
+       }
+       else{
+         //removedNode is a parentNode, so remove all its children
+         ivhTreeviewBfs(ivhTree,function(node){
+            if(node.children){
+              // now only non-leaf nodes are touched
+              if(removedNode.name===node.name){
+                // now only removed node is accessed
+                _.forEach(node.children,function(eachNode){
+                  // each child of removed node should be removed
+                  if(findIfNodeExists(allLeafNodeDataStore,eachNode.name)){
+                    returnObj.removeFromDataStore(allLeafNodeDataStore,eachNode);
+                  }
+                });
+              }
+            }
+         });
+       }
+
       },
       buildJSONTree: function(facebookDataStore){
         _.forEach(facebookDataStore,function(value,key){
