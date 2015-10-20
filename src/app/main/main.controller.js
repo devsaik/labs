@@ -6,7 +6,7 @@
     .controller('MainController', MainController);
 
   /** @ngInject */
-  function MainController($scope) {
+  function MainController($scope,TreeServiceUtils) {
     $scope.preFormatted={};
     $scope.preFormatted.dataStore=[
       {

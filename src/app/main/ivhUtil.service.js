@@ -7,10 +7,13 @@
   angular.module('labs')
     .factory ('TreeServiceUtils', function (ivhTreeviewBfs) {
     var returnObj = {},
-        allLeafNodeDataStore=[],
-        treeFormattedJSON={};
+        resultDataStore={},
+        treeFormattedJSON={},
+        mode = 'behaviors';
     /* Initialization */
     treeFormattedJSON['name'] = 'All';
+    resultDataStore[mode]=[];
+
 
     function findIfNodeExists(givenArray,name){
       var returnObject =  _.find(givenArray, function(obj) {
@@ -40,30 +43,50 @@
     }
 
     returnObj={
+      setMode: function(newmode){
+        mode = newmode;
+      },
       getTreeFormattedJSON: function(){
         return treeFormattedJSON;
       },
-      addAllLeafNodes:function(ivhTree,treeDataStore){
-        ivhTreeviewBfs(ivhTree,function(node,parentNodes){
-          if(typeof node.children == "undefined"){
-            _.forEach(parentNodes,function(parentNode){
-              if(findIfNodeExists(treeDataStore,parentNode.name)||findIfNodeExists(treeDataStore,node.name)){
-                //todo: take care of duplicates here
-                allLeafNodeDataStore.push(node);
+      addToResultDataStore:function(ivhTree,treeDataStore,addNode,allFlag){
+        if(treeDataStore.length<=0){
+          // UnSelect All happened
+          returnObj.emptyResultDataStore();
+        }
+        if( typeof addNode.children == "undefined" ){
+          resultDataStore[mode].push(addNode);
+        }
+        else{
+          ivhTreeviewBfs(ivhTree,function(node,parentNodes){
+            if(typeof node.children == "undefined"){
+              if(allFlag){
+                resultDataStore[mode].push(node);
               }
-            });
-          }
-        });
+              else{
+                _.forEach(parentNodes,function(parentNode){
+                  if(findIfNodeExists(treeDataStore,parentNode.name)){
+                    //todo: take care of duplicates here
+                    resultDataStore[mode].push(node);
+                  }
+                });
+              }
+
+            }
+          });
+        }
       },
-      getAllLeafNodesDataStore: function(){
-        return allLeafNodeDataStore;
+      emptyResultDataStore: function(){
+        resultDataStore[mode]=[];
       },
-      removeLeafFromLeafNodesDataStore: function(ivhTree,removedNode){
-       if(findIfNodeExists(allLeafNodeDataStore,removedNode.name)){
-         // removedNode is a leafnode
-         allLeafNodeDataStore=returnObj.removeFromDataStore(allLeafNodeDataStore,removedNode);
+      getResultDataStore: function(){
+        return  resultDataStore[mode];
+      },
+      removeFromResultDataStore: function(ivhTree,removedNode){
+       if(findIfNodeExists( resultDataStore[mode],removedNode.name)){
+         // removedNode that is a leafNode
+         resultDataStore[mode]=returnObj.removeFromDataStore( resultDataStore[mode],removedNode);
        }
-       else{
          //removedNode is a parentNode, so remove all its children
          ivhTreeviewBfs(ivhTree,function(node){
             if(node.children){
@@ -72,15 +95,18 @@
                 // now only removed node is accessed
                 _.forEach(node.children,function(eachNode){
                   // each child of removed node should be removed
-                  if(findIfNodeExists(allLeafNodeDataStore,eachNode.name)){
-                    returnObj.removeFromDataStore(allLeafNodeDataStore,eachNode);
+                  if(typeof eachNode.children == "undefined"){
+                    if(findIfNodeExists( resultDataStore[mode],eachNode.name)){
+                      resultDataStore[mode] = returnObj.removeFromDataStore( resultDataStore[mode],eachNode);
+                    }
+                  }
+                  else{
+                    returnObj.removeFromResultDataStore(ivhTree,eachNode);
                   }
                 });
               }
             }
          });
-       }
-
       },
       buildJSONTree: function(facebookDataStore){
         _.forEach(facebookDataStore,function(value,key){

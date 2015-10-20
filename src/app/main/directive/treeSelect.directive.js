@@ -13,7 +13,8 @@
       replace: true,
       templateUrl:'app/main/directive/treeSelect.partial.html',
       scope: {
-        preFormattedData: '='
+        preFormattedData: '=',
+        mode: '='
       },
       controller: 'TreeSelectController'
     }
