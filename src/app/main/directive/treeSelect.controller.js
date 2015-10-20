@@ -8,7 +8,7 @@
     .controller('TreeSelectController', TreeSelectController);
 
   function TreeSelectController($timeout, $scope, ivhTreeviewMgr, ivhTreeviewBfs, TreeServiceUtils) {
-    $scope.treeInputUnclicked = 'mtree-div';
+    $scope.treeInputUnclicked = 'mTree-div';
     $scope.hideScroll = true;
     $scope.showAll = true;
     $scope.allCheckboxClicked = false;
@@ -22,10 +22,11 @@
     $scope.postFormatted.dataStore = [];
 
     /* Initialization */
+    console.log("mode::"+$scope.mode);
     TreeServiceUtils.setMode($scope.mode);
     TreeServiceUtils.buildJSONTree($scope.preFormatted.dataStore);
     $timeout(function() {
-      $('.mtree').slimScroll({
+      $('.mTree').slimScroll({
         height: '200px',
         railVisible: true,
         alwaysVisible: false
@@ -38,13 +39,15 @@
       if(!$scope.showAll)
          $scope.hideScroll = true;
       if (TreeServiceUtils.ifInInitialState($scope.treeDataStore)) {
-        $scope.treeInputUnclicked = "mtree-div";
+        $scope.treeInputUnclicked = "mTree-div";
         $scope.showAll = true;
       }
-      var resultantData=TreeServiceUtils.getResultDataStore();
-      console.log("RESULT DATA LENGTH::"+resultantData.length);
-    };
+      // Below Lines are Just to check the resultant data once tree-selection is done
 
+      var resultantData=TreeServiceUtils.getResultDataStore($scope.mode);
+      if(resultantData)
+        console.log("RESULT DATA LENGTH for "+$scope.mode+" :: "+resultantData.length);
+    };
 
     $scope.postFormatted.dataStore.push(TreeServiceUtils.getTreeFormattedJSON());
 
@@ -76,7 +79,6 @@
                 TreeServiceUtils.removeFromResultDataStore(ivhTree,childNode);
               });
               $scope.treeDataStore.push(parentNodes[0]);
-              //TreeServiceUtils.addToResultDataStore(ivhTree, $scope.treeDataStore,parentNodes[0],false);
               checkIfParentIsSelected(parentNodes[0], ivhTree);
             } else {
               $scope.showAll = true;
@@ -84,7 +86,7 @@
               $scope.treeDataStore = [];
               TreeServiceUtils.emptyResultDataStore();
               _.forEach(node.children,function(eachChild){
-                TreeServiceUtils.addToResultDataStore(ivhTree,[],eachChild,true);
+                TreeServiceUtils.addToResultDataStore(ivhTree,[],eachChild,true,$scope.mode);
               });
             }
           }
@@ -97,7 +99,7 @@
         if (unSelectedNode.name == node.name) {
           _.forEach(parentNodes, function(eachParentNode) {
             //if parent is in dataStore  then removeIt
-            $scope.treeDataStore = TreeServiceUtils.removeFromDataStore($scope.treeDataStore, eachParentNode);
+            $scope.treeDataStore = TreeServiceUtils.removeFromDataStore($scope.treeDataStore, eachParentNode,$scope.mode);
 
             //taking care of sibling selected nodes below
             _.forEach(eachParentNode.children, function(sibblingNode) {
@@ -126,14 +128,14 @@
           $scope.showAll = true;
           //For Each Child of All, Find leafNodes and add It to resultDataStore
           _.forEach(node.children,function(eachChild){
-              TreeServiceUtils.addToResultDataStore(ivhTree,[],eachChild,true);
+              TreeServiceUtils.addToResultDataStore(ivhTree,[],eachChild,true,$scope.mode);
           });
         } else {
           // un-Select all Nodes
           $scope.allCheckboxClicked = false;
           $scope.showAll = false;
           _.forEach(node.children,function(eachChild){
-             TreeServiceUtils.removeFromResultDataStore(ivhTree,eachChild);
+             TreeServiceUtils.removeFromResultDataStore(ivhTree,eachChild,$scope.mode);
           });
         }
       } else {
@@ -149,13 +151,13 @@
           checkIfAnyChildrenIsInList(node, ivhTree);
           if(!(TreeServiceUtils.isDuplicate($scope.treeDataStore, nodeObj))){
              $scope.treeDataStore.push(nodeObj);
-             TreeServiceUtils.addToResultDataStore(ivhTree,$scope.treeDataStore,node,false);
+             TreeServiceUtils.addToResultDataStore(ivhTree,$scope.treeDataStore,node,false,$scope.mode);
           }
           checkIfParentIsSelected(node, ivhTree);
 
         } else {
           $scope.removeNodeItem(nodeObj);
-          TreeServiceUtils.removeFromResultDataStore(ivhTree,node);
+          TreeServiceUtils.removeFromResultDataStore(ivhTree,node,$scope.mode);
           checkForSelectedSiblings(node, ivhTree);
           $scope.showAll = false;
           $scope.allCheckboxClicked = false;
@@ -165,10 +167,10 @@
     $scope.removeNodeItem = function(node) {
       $scope.treeDataStore = TreeServiceUtils.removeFromDataStore($scope.treeDataStore, node);
       ivhTreeviewMgr.deselect($scope.postFormatted.dataStore, node.name);
-      TreeServiceUtils.removeFromResultDataStore($scope.postFormatted.dataStore,node);
+      TreeServiceUtils.removeFromResultDataStore($scope.postFormatted.dataStore,node,$scope.mode);
     };
     $scope.keyUpSearch = function() {
-      var text = $scope.behaviorSearch;
+
       ivhTreeviewMgr.expandRecursive($scope.postFormatted.dataStore, $scope.postFormatted.dataStore);
       if (text.length <= 0) {
         ivhTreeviewMgr.collapseRecursive($scope.postFormatted.dataStore, $scope.postFormatted.dataStore);
@@ -176,6 +178,8 @@
       }
     };
     $scope.treeInputClicked = function(event) {
+
+      // any other click on the control will be bubbled up to  $scope.keyUpSearch
 
       if (event.target.id === "list-all" || event.target.id === "selectedItems" || event.target.id === "item-choices" || event.target.id === "list-placeholder") {
         if(!$scope.allCheckboxClicked){
@@ -190,13 +194,13 @@
           ivhTreeviewMgr.select($scope.postFormatted.dataStore, "All");
         }
 
-        $scope.treeInputUnclicked = 'mtree-input-clicked';
+        $scope.treeInputUnclicked = 'mTree-input-clicked';
         if ($scope.toggleValue === "open") {
           $scope.hideScroll = false;
           $scope.toggleValue = "close";
         } else {
           if (TreeServiceUtils.ifInInitialState($scope.treeDataStore)) {
-            $scope.treeInputUnclicked = "mtree-div";
+            $scope.treeInputUnclicked = "mTree-div";
             $scope.showAll = true;
           }
           $scope.hideScroll = true;

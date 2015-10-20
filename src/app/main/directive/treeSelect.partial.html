@@ -4,12 +4,12 @@
     <ul  id="item-choices" class="item-choices"  ng-hide="showAll">
       <li class="item-choices-eachItem"  ng-repeat="node in treeDataStore">
         <span >{{node.name}}</span>
-        <span class="mtree-tag-close" ng-click="removeNodeItem(node)">X</span>
+        <span class="mTree-tag-close" ng-click="removeNodeItem(node)">X</span>
       </li>
     </ul>
-    <div id="mtreeTree" class="mtreeTree" ng-hide="hideScroll" >
-      <input   id="mtreeTree-input" class="mtreeTree-input" type="text" ng-keyup="keyUpSearch($event)"  placeholder="search" ng-model="nodeSearch"  />
-      <div class="mtree">
+    <div id="mTreeWrapper" class="mTreeWrapper" ng-hide="hideScroll" >
+      <input   id="mTreeWrapper-input" class="mTreeWrapper-input" type="text" ng-keyup="keyUpSearch($event)"  placeholder="search" ng-model="nodeSearch"  />
+      <div class="mTree">
         <div ivh-treeview="postFormatted.dataStore" ivh-treeview-on-cb-change="changeCallback(ivhNode,ivhIsSelected, ivhTree)"
              ivh-treeview-filter="nodeSearch" class="custom-border-down">
         </div>

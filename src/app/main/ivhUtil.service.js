@@ -11,17 +11,13 @@
         treeFormattedJSON={},
         mode = 'behaviors';
     /* Initialization */
-    treeFormattedJSON['name'] = 'All';
-    resultDataStore[mode]=[];
-
-
     function findIfNodeExists(givenArray,name){
       var returnObject =  _.find(givenArray, function(obj) {
         return obj.name == name;
       });
       return returnObject
     }
-    function organizeParents(parent,child,leafAudienceSize){
+    function organizeParents(parent,child){
       var childFound;
       if(! _.isArray(parent.children)){
         parent.children=[];
@@ -29,10 +25,6 @@
       else{
         childFound=findIfNodeExists(parent.children,child.name);
       }
-      if(parent.audienceSize)
-        parent.audienceSize=(parseInt(parent.audienceSize)+parseInt(leafAudienceSize));
-      else
-        parent.audienceSize=parseInt(leafAudienceSize);
       // array is defined
       if(!childFound){
         child.children=[];
@@ -43,52 +35,101 @@
     }
 
     returnObj={
+      buildJSONTree: function(facebookDataStore){
+        _.forEach(facebookDataStore,function(value,key){
+          if(_.isArray(value['path'] ) && value['path'].length>1){
+            var result;
+            var pathObj;
+            var existingChild;
+            _.forEach(value['path'],function(pathValue,index){
+              pathObj={};
+              pathObj={'name':pathValue,label:pathValue,selectedNode:true};
+              if(index==0){
+                // first element in the path
+                result = organizeParents(treeFormattedJSON[mode],pathObj);
+              }
+              else if((value['path'].length-1)!= index){
+                // not first , not last element, Some where in middle
+                result = organizeParents(result,pathObj);
+              }
+              else{
+                // last element in the path
+                if(!_.isArray(result.children)){
+                  result.children=[];
+                }
+                 existingChild = findIfNodeExists(result.children,value.name);
+                if(existingChild){
+                 for(var prop in value){
+                   existingChild[prop] =value[prop];
+                 }
+                }else{
+                  value.selectedNode=true;
+                  result.children.push(value);
+                }
+
+              }
+            });
+          }
+        });
+      },
       setMode: function(newmode){
         mode = newmode;
+        resultDataStore[mode]=[];
+        treeFormattedJSON[mode]={};
+        treeFormattedJSON[mode]['name'] = 'All';
       },
       getTreeFormattedJSON: function(){
-        return treeFormattedJSON;
+        return treeFormattedJSON[mode];
       },
-      addToResultDataStore:function(ivhTree,treeDataStore,addNode,allFlag){
+      addToResultDataStore:function(ivhTree,treeDataStore,addNode,allFlag,mode){
         if(treeDataStore.length<=0){
-          // UnSelect All happened
+          // UnSelect All
           returnObj.emptyResultDataStore();
         }
-        if( typeof addNode.children == "undefined" ){
+        if(mode === "interests"){
           resultDataStore[mode].push(addNode);
         }
         else{
-          ivhTreeviewBfs(ivhTree,function(node,parentNodes){
-            if(typeof node.children == "undefined"){
-              if(allFlag){
-                resultDataStore[mode].push(node);
-              }
-              else{
-                _.forEach(parentNodes,function(parentNode){
-                  if(findIfNodeExists(treeDataStore,parentNode.name)){
-                    //todo: take care of duplicates here
-                    resultDataStore[mode].push(node);
-                  }
-                });
-              }
+          if( typeof addNode.children == "undefined" ){
+            resultDataStore[mode].push(addNode);
+          }
+          else{
+            ivhTreeviewBfs(ivhTree,function(node,parentNodes){
+              if(typeof node.children == "undefined"){
+                if(allFlag){
+                  resultDataStore[mode].push(node);
+                }
+                else{
+                  _.forEach(parentNodes,function(parentNode){
+                    if(findIfNodeExists(treeDataStore,parentNode.name)){
+                      //todo: take care of duplicates here
+                      if(! returnObj.isDuplicate(resultDataStore[mode],node))
+                        resultDataStore[mode].push(node);
+                    }
+                  });
+                }
 
-            }
-          });
+              }
+            });
+          }
+
         }
       },
       emptyResultDataStore: function(){
         resultDataStore[mode]=[];
       },
-      getResultDataStore: function(){
+      getResultDataStore: function(mode){
         return  resultDataStore[mode];
       },
-      removeFromResultDataStore: function(ivhTree,removedNode){
-       if(findIfNodeExists( resultDataStore[mode],removedNode.name)){
-         // removedNode that is a leafNode
-         resultDataStore[mode]=returnObj.removeFromDataStore( resultDataStore[mode],removedNode);
-       }
-         //removedNode is a parentNode, so remove all its children
-         ivhTreeviewBfs(ivhTree,function(node){
+      removeFromResultDataStore: function(ivhTree,removedNode,mode){
+
+        if(findIfNodeExists( resultDataStore[mode],removedNode.name)){
+          // removedNode that is a leafNode
+          resultDataStore[mode]=returnObj.removeFromDataStore( resultDataStore[mode],removedNode);
+        }
+        if(mode !== "interests") {
+          //removedNode is a parentNode, so remove all its children
+          ivhTreeviewBfs(ivhTree,function(node){
             if(node.children){
               // now only non-leaf nodes are touched
               if(removedNode.name===node.name){
@@ -106,40 +147,10 @@
                 });
               }
             }
-         });
+          });
+        }
       },
-      buildJSONTree: function(facebookDataStore){
-        _.forEach(facebookDataStore,function(value,key){
-          if(_.isArray(value['path'] ) && value['path'].length>1){
-            var result;
-            var pathObj;
-            _.forEach(value['path'],function(pathValue,index){
-              pathObj={};
-              pathObj={'name':pathValue,label:pathValue,selectedNode:true};
-              if(index==0){
-                // first element in the path
-                result = organizeParents(treeFormattedJSON,pathObj,value.audienceSize);
-              }
-              else if((value['path'].length-1)!= index){
-                // not first , not last element, Some where in middle
-                result = organizeParents(result,pathObj,value.audienceSize);
-              }
-              else{
-                // last element in the path
-                if(!_.isArray(result.children)){
-                  result.children=[];
-                }
-                value.selectedNode=true;
-                if(result.audienceSize)
-                  result.audienceSize = parseInt(result.audienceSize)+parseInt(value.audienceSize);
-                else
-                  result.audienceSize = parseInt(value.audienceSize);
-                result.children.push(value);
-              }
-            });
-          }
-        });
-      },
+
       isDuplicate: function(sourceArray,element){
         return _.some(sourceArray,function(currentElement){
           return element.name === currentElement.name;
